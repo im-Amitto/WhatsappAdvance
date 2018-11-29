@@ -1,6 +1,8 @@
-# VampireWhatsApp-V2
-![Vampire WhatsApp](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSpkzb6HDiERinGs5C5RjWMYMndyHh0ZrUml7PwIHDaxdRxgdK)
+<p align="center">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSpkzb6HDiERinGs5C5RjWMYMndyHh0ZrUml7PwIHDaxdRxgdK">
+</p>
 
+# VampireWhatsApp-V2
 Web WhatsApp automation tool -- using Selenium-webdriver over Socket IO -- lightining fast messaging over WhatsApp.
 
 ## What's New
@@ -68,6 +70,7 @@ Now in the new release following features have been added -
 3.  For the first time you need to scan QR code from your mobile.
 4.  Now as the request is sent through socket the driver will start executing as per server command.
 5.  Wooolaaah....!!! You are done now.
+6.  Go to `localhost:3000` in your browser and send bulk messages.
 
 
 ## Note
