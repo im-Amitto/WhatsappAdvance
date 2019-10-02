@@ -1,5 +1,17 @@
 const socket = io('http://localhost:3000');
 
+function sendTextMessage(){
+	var count = document.getElementById('count').value;
+	while(count--) {
+		socket.emit("send_text_message", {
+			message: document.getElementById('msg').value,
+			mobile_number: document.getElementById('mn').value,
+			type: "text"
+		});
+	}
+}
+
+
 function getQRcode(){
 	socket.emit("get_QR_code", {
 		payload: "NOT REQUIRED"
@@ -12,16 +24,16 @@ function isLoggedIn(){
 	});
 }
 
-function sendTextMessage(){
-	var count = document.getElementById('count').value;
-	while(count--) {
-		socket.emit("send_text_message", {
-			message: document.getElementById('msg').value,
-			mobile_number: document.getElementById('mn').value,
-			type: "text"
-		});
-	}
+function displayQRcode(data) {
+	var img_ele = document.createElement('IMG');
+	img_ele.src = data;
+	var qr_img = document.getElementById('qr_img');
+	if(!qr_img.hasChildNodes())
+		qr_img.appendChild(img_ele);
+	else
+		qr_img.replaceChild(img_ele ,qr_img.childNodes[0]);
 }
+
 
 function sendFileMessage(){
 	var count_file = document.getElementById('count_file').value;
@@ -66,21 +78,13 @@ function displayUnread(data){
 	document.getElementById('msgss').innerHTML = html;
 }
 
-function displayQRcode(data) {
-	var img_ele = document.createElement('IMG');
-	img_ele.src = data;
-	var qr_img = document.getElementById('qr_img');
-	if(!qr_img.hasChildNodes())
-		qr_img.appendChild(img_ele);
-	else
-		qr_img.replaceChild(img_ele ,qr_img.childNodes[0]);
-}
 
 socket.on("get_unread_response", (data) => {
 	displayUnread(data);
 });
 
 socket.on("get_QR_code_response", (data) => {
+	console.log(data)
 	if(data != false)
 		displayQRcode(data);
 	else
@@ -91,7 +95,8 @@ socket.on("is_logged_in_response", (data) => {
 	alert(data);
 })
 
+
 setInterval(() => {
-	getUnreadReplies();
 	getQRcode();
+	getUnreadReplies();
 }, 1000);

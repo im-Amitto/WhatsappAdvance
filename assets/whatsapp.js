@@ -1,11 +1,3 @@
-/**
- * This script contains WAPI functions that need to be run in the context of the webpage
- */
-
-/**
- * Auto discovery the webpack object references of instances that contains all functions used by the WAPI
- * functions and creates the Store object.
- */
 if (!window.Store) {
     (function () {
         function getStore(modules) {
@@ -489,7 +481,7 @@ window.WAPI.areAllMessagesLoaded = function (id, done) {
 window.WAPI.loadEarlierMessagesTillDate = function (id, lastMessage, done) {
     const found = WAPI.getChat(id);
     x = function () {
-        if (found.msgs.models[0].t > lastMessage) {
+        if (found.msgs.models[0].t > lastMessage && !found.msgs.msgLoadState.noEarlierMsgs) {
             found.loadEarlierMsgs().then(x);
         } else {
             done();
@@ -588,6 +580,14 @@ window.WAPI.isLoggedIn = function (done) {
 
     if (done !== undefined) done(isLogged);
     return isLogged;
+};
+
+window.WAPI.isConnected = function (done) {
+    // Phone Disconnected icon appears when phone is disconnected from the tnternet
+    const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
+
+    if (done !== undefined) done(isConnected);
+    return isConnected;
 };
 
 window.WAPI.processMessageObj = function (messageObj, includeMe, includeNotifications) {
@@ -707,25 +707,17 @@ window.WAPI.ReplyMessage = function (idMessage, message, done) {
 
 window.WAPI.sendMessageToID = function (id, message, done) {
     try {
-        window.getContact = (id) => {
-            return Store.WapQuery.queryExist(id);
-        }
-        window.getContact(id).then(contact => {
-            if (contact.status === 404) {
-                done(true);
-            } else {
-                Store.Chat.find(contact.jid).then(chat => {
-                    chat.sendMessage(message);
-                    return true;
-                }).catch(reject => {
-                    if (WAPI.sendMessage(id, message)) {
-                        done(true);
-                        return true;
-                    }else{
-                        done(false);
-                        return false;
-                    }
+        var idUser = new window.Store.UserConstructor(id);
+        // create new chat
+        return Store.Chat.find(idUser).then((chat) => {
+            if (done !== undefined) {
+                chat.sendMessage(message).then(function () {
+                    done(true);
                 });
+                return true;
+            } else {
+                chat.sendMessage(message);
+                return true;
             }
         });
     } catch (e) {
@@ -747,8 +739,6 @@ window.WAPI.sendMessageToID = function (id, message, done) {
             return true;
         }
     }
-    if (done !== undefined) done(false);
-    return false;
 }
 
 window.WAPI.sendMessage = function (id, message, done) {
@@ -818,12 +808,12 @@ window.WAPI.sendSeen = function (id, done) {
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
         if (done !== undefined) {
-            Store.SendSeen(Store.Chat.models[0], false).then(function () {
+            Store.SendSeen(chat, false).then(function () {
                 done(true);
             });
             return true;
         } else {
-            Store.SendSeen(Store.Chat.models[0], false);
+            Store.SendSeen(chat, false);
             return true;
         }
     }
@@ -909,7 +899,7 @@ window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_u
     return output;
 };
 
-window.WAPI.getUnreadMessages2 = function (done) {
+window.WAPI.getUnreadMessages2 = function () {
     const chats = window.Store.Chat.models;
     var arp = [];
     chats.forEach(chats_man => {
@@ -941,7 +931,7 @@ window.WAPI.getUnreadMessages2 = function (done) {
             arp.push(objd);
         }
     });
-    done(arp);
+    return arp
 };
 
 window.WAPI.getGroupOwnerID = async function (id, done) {
@@ -1424,16 +1414,4 @@ window.WAPI.demoteParticipantAdminGroup = function (idGroup, idParticipant, done
         }
         done(true); return true;
     })
-}
-
-window.WAPI.getQRcodesrc = function(done) {
-    var reload_icon = document.getElementsByClassName('_1MOym')[0];
-    if(reload_icon)
-        reload_icon.click();
-    if(document.getElementsByClassName('_1pw2F')[0]){
-        var src = document.getElementsByTagName('img')[0].src;
-        done(src);
-    } else {
-        done(false);
-    }
 }
