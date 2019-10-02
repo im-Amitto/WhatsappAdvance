@@ -92,6 +92,9 @@ io.on("connection", socket => {
       getUnreadReplies(data => {
         io.emit("get_unread_response", data);
       });
+    }else
+    {
+      io.emit("get_unread_response", []);
     }
   });
 
@@ -166,6 +169,9 @@ function executeWAPI() {
                     .executeScript(scriptToEcecute)
                     .then(() => {
                       isLoggedIn = true
+                      getUnreadReplies(data => {
+                        io.emit("get_unread_response", data);
+                      });
                       trackLogin();
                     })
                     .catch(e => {
