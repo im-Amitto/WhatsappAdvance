@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000');
+const socket = io('http://13.233.103.104:3000');
 
 function sendTextMessage(){
 	var count = document.getElementById('count').value;

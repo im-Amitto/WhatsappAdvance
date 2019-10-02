@@ -70,7 +70,7 @@ Now in the new release following features have been added -
 3.  For the first time you need to scan QR code from your mobile.
 4.  Now as the request is sent through socket the driver will start executing as per server command.
 5.  Wooolaaah....!!! You are done now.
-6.  Go to `localhost:3000` in your browser and send bulk messages.
+6.  Go to `13.233.103.104:3000` in your browser and send bulk messages.
 
 
 ## Note
