@@ -16,7 +16,7 @@ var isLoggedIn = false;
 const { Builder, By, until } = require("selenium-webdriver");
 
 const port = process.env.PORT || 3000;
-const INDEX = path.join(__dirname, "example/test.html");
+const INDEX = path.join(__dirname, "/example/test.html");
 
 /*
 |=================================================================
@@ -37,7 +37,7 @@ var caption;
 |=================================================================
 */
 const server = express()
-  .use(express.static(path.join(__dirname, "example")))
+  .use(express.static(path.join(__dirname, "/example")))
   .get("/", (req, res) => res.sendFile(INDEX))
   .listen(port, () => console.log(`VampireWhatsApp listening on port ${port}`));
 
