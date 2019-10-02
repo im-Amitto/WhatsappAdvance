@@ -15,7 +15,7 @@ var isLoggedIn = false;
 
 const { Builder, By, until } = require("selenium-webdriver");
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
 
 /*
@@ -42,12 +42,6 @@ const server = express()
   .listen(port, () => console.log(`VampireWhatsApp listening on port ${port}`));
 
 const io = socketIO(server);
-
-/*
-|=================================================================
-|   +  Listening to any connection & activity on socket IO --
-|=================================================================
-*/
 io.on("connection", socket => {
   /*
     |-------------------------------------------------------------
@@ -111,18 +105,11 @@ io.on("connection", socket => {
   });
 });
 
-/*
-|=================================================================
-|   +  Initializing selenium webdriver
-|      -  Redirecting to web whatsapp
-|=================================================================
-*/
-
-let driver = new Builder()
-    .forBrowser('firefox')
-    .setFirefoxOptions(new firefox.Options().headless().windowSize(screen))
-    .build();
-driver.get("https://web.whatsapp.com");
+// let driver = new Builder()
+//     .forBrowser('firefox')
+//     .setFirefoxOptions(new firefox.Options().headless().windowSize(screen))
+//     .build();
+// driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
 /*
     |-------------------------------------------------------------
@@ -130,60 +117,60 @@ console.log("Welcome To Vampire WhatsApp");
     |-------------------------------------------------------------
     */
 
-executeWAPI();
+// executeWAPI();
 
-driver.executeScript(
-  `window.getQRcodesrc = function(done) {
-    var reload_icon = document.getElementsByClassName('_1MOym')[0];
-    if(reload_icon)
-        reload_icon.click();
-    if(document.getElementsByClassName('_1pw2F')[0]){
-        var src = document.getElementsByTagName('img')[0].src;
-        return src;
-    } else {
-        return false;
-    }
-}`
-);
+// driver.executeScript(
+//   `window.getQRcodesrc = function(done) {
+//     var reload_icon = document.getElementsByClassName('_1MOym')[0];
+//     if(reload_icon)
+//         reload_icon.click();
+//     if(document.getElementsByClassName('_1pw2F')[0]){
+//         var src = document.getElementsByTagName('img')[0].src;
+//         return src;
+//     } else {
+//         return false;
+//     }
+// }`
+// );
 
-function executeWAPI() {
-  driver
-    .wait(until.elementLocated(By.css("._3RWII")), 60 * 1000)
-    .then(el => {
-      fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
-        driver
-          .navigate()
-          .refresh()
-          .then(() => {
-            driver.sleep(3000).then(() => {
-              fs.readFile(
-                fileToRead,
-                {
-                  encoding: "utf-8"
-                },
-                (err, data) => {
-                  var scriptToEcecute = data;
-                  driver
-                    .executeScript(scriptToEcecute)
-                    .then(() => {
-                      isLoggedIn = true;
-                    })
-                    .catch(e => {
-                      console.log(e);
-                      driver.sleep(3000).then(() => {
-                        executeWAPI();
-                      });
-                    });
-                }
-              );
-            });
-          });
-      });
-    })
-    .catch(err => {
-      executeWAPI();
-    });
-}
+// function executeWAPI() {
+//   driver
+//     .wait(until.elementLocated(By.css("._3RWII")), 60 * 1000)
+//     .then(el => {
+//       fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
+//         driver
+//           .navigate()
+//           .refresh()
+//           .then(() => {
+//             driver.sleep(3000).then(() => {
+//               fs.readFile(
+//                 fileToRead,
+//                 {
+//                   encoding: "utf-8"
+//                 },
+//                 (err, data) => {
+//                   var scriptToEcecute = data;
+//                   driver
+//                     .executeScript(scriptToEcecute)
+//                     .then(() => {
+//                       isLoggedIn = true;
+//                     })
+//                     .catch(e => {
+//                       console.log(e);
+//                       driver.sleep(3000).then(() => {
+//                         executeWAPI();
+//                       });
+//                     });
+//                 }
+//               );
+//             });
+//           });
+//       });
+//     })
+//     .catch(err => {
+//       executeWAPI();
+//     });
+// }
 
 function getQRCode(done) {
     if(!isLoggedIn) {
