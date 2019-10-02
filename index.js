@@ -105,11 +105,11 @@ io.on("connection", socket => {
   });
 });
 
-// let driver = new Builder()
-//     .forBrowser('firefox')
-//     .setFirefoxOptions(new firefox.Options().headless().windowSize(screen))
-//     .build();
-// driver.get("https://web.whatsapp.com");
+let driver = new Builder()
+    .forBrowser('firefox')
+    .setFirefoxOptions(new firefox.Options().headless().windowSize(screen))
+    .build();
+driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
 /*
     |-------------------------------------------------------------
