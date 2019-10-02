@@ -2,31 +2,14 @@
     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSpkzb6HDiERinGs5C5RjWMYMndyHh0ZrUml7PwIHDaxdRxgdK">
 </p>
 
-# VampireWhatsApp-V2
-Web WhatsApp automation tool -- using Selenium-webdriver over Socket IO -- lightining fast messaging over WhatsApp.
-
-## What's New
-Earlier I made a project using pusher and selenium-webdriver to automate whatsapp web for sending messages over whatsapp.
-But it had flaws in it -
-1. For sending each new message you got to refresh the whole page again and again, which implies a lot a time to send each whatsapp message or file.
-2. the code highly depended upon css of the DOM, which rapidly keeps changing.
-3. Most important of all it didn't have proper error handling etc.
-
-Now in the new release following features have been added -
-1. Lightining speed text and file sending.
-2. No dependency on DOM of web whatsapp.
-3. can send to any new mobile number  without even refresh.
-4. you can send seen to any message.
-5. get all unread messages.
-6. Use of Socket IO, which makes it's integration with any tech very simple.
-7. send any file from internet, just by giving link of the file.
+## Prerequisite
+  - Node 10+
+  - NPM 6+
+  - Firefox
 
 ## Installing
-1.  Download and Install [NodeJS](https://nodejs.org/en/download/).
-2.  Download [Chrome Driver](http://chromedriver.chromium.org/downloads) latest version as per your system. (Mac/Linux/Windows)
-3.  Place the downloaded driver in ChromeDriver Folder in Project.
-4.  Set global path variable for this folder (ChromeDriver folder) in your system.
-5.  Run 'npm install' in root directory of the project.
+1.  Run `npm install` in the project directory folder.
+5.  Run 'npm start' to start the server.
 
 ## Getting Started
 1.  The socket client must send data in following format which contains following parameters as json --
@@ -66,21 +49,28 @@ Now in the new release following features have been added -
       msg_id: 'msg id you get form the response of the event "get_unread_response"'
     }
     ```
+    Note: Check out [socket.io](https://socket.io/) to understand how to trigger these events
 2.  run 'node index.js' in cmd in root directory of the project.
-3.  For the first time you need to scan QR code from your mobile.
-4.  Now as the request is sent through socket the driver will start executing as per server command.
-5.  Wooolaaah....!!! You are done now.
-6.  Go to `13.233.103.104:3000` in your browser and send bulk messages.
 
+## How it's working
+  - It's using selenium-webdriver to spawn a headless firefox with whatsapp web url
+  - We have a flag on server side with has deafult value set to false and changed to true when user successfully logged in. It is used to decide which event should be ignored when a user is not logged in
+  - We are using the assertion on classname presence to decide the current page location
+  - From front end `get unread message` and `get qr request` is fired every one second. if a user is not logged in that means their exist a qr on the webpage so backend send that qr to front end or else it just send all unread messages
+  - We have four functionalities which can be fired manually 
+    - Send Message
+    - Send File
+    - Send Seen status
 
-## Note
-1.  Donot close the chrome instance else you will have to rescan the QR code.
-2.  In case of ubuntu provide proper permission to files directory in project.
-3.  Do not leave any entries blank, else it may crash server
-
-## Contributing
-  Please contribute to this repo and also feel free to raise issues.
-  Merge request will be accepted only after proper testing.
+## Extra
+### `assets/Whatsapp.js` contains all methods needed to do various operation in whatsapp
+  Note : Every method is well documented in file itself
+### How we are using methods from whatsapp.js
+  - We can simply call the function using executequery method of selenium-webdriver
+### How whatsapp.js id getting injected
+ - It wait's for the qr page to disappear
+ - The script is injected in the headless browser using selenium-webdriver once user is logged in
+ - If the injection turned out to be insuccessfull then it reploads the page and reattempt so we can we sure that the operation won't fail
     
 ## Author
-SAURASS (Saurabh Srivastava)
+Amit (im-Amitto)
