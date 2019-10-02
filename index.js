@@ -4,8 +4,8 @@ const fs = require("fs");
 const express = require("express");
 const socketIO = require("socket.io");
 const path = require("path");
-const geckodriver = require('geckodriver')
-const firefox = require('selenium-webdriver/firefox');
+const geckodriver = require("geckodriver");
+const firefox = require("selenium-webdriver/firefox");
 
 const screen = {
   width: 640,
@@ -106,9 +106,9 @@ io.on("connection", socket => {
 });
 
 let driver = new Builder()
-    .forBrowser('firefox')
-    .setFirefoxOptions(new firefox.Options().headless().windowSize(screen))
-    .build();
+  .forBrowser("firefox")
+  .setFirefoxOptions(new firefox.Options())
+  .build();
 driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
 /*
@@ -133,6 +133,18 @@ driver.executeScript(
 }`
 );
 
+function trackLogin() {
+  driver
+    .wait(until.elementLocated(By.css("._3FB_S")), 60 * 1000)
+    .then(el => {
+      isLoggedIn = false
+      executeWAPI();
+    })
+    .catch(err => {
+      trackLogin()
+    });
+}
+
 function executeWAPI() {
   driver
     .wait(until.elementLocated(By.css("._3RWII")), 60 * 1000)
@@ -153,7 +165,8 @@ function executeWAPI() {
                   driver
                     .executeScript(scriptToEcecute)
                     .then(() => {
-                      isLoggedIn = true;
+                      isLoggedIn = true
+                      trackLogin();
                     })
                     .catch(e => {
                       console.log(e);
@@ -173,16 +186,17 @@ function executeWAPI() {
 }
 
 function getQRCode(done) {
-    if(!isLoggedIn) {
-        var scriptToGetQRcode = "return window.getQRcodesrc()";
-        var r = driver.executeScript(scriptToGetQRcode).then(data => {
-            done(data);
-        }).catch(err=>{
-            
-        });
-    } else {
-        done(false);
-    }
+  if (!isLoggedIn) {
+    var scriptToGetQRcode = "return window.getQRcodesrc()";
+    var r = driver
+      .executeScript(scriptToGetQRcode)
+      .then(data => {
+        done(data);
+      })
+      .catch(err => {});
+  } else {
+    done(false);
+  }
 }
 
 /*

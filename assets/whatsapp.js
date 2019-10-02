@@ -1415,3 +1415,14 @@ window.WAPI.demoteParticipantAdminGroup = function (idGroup, idParticipant, done
         done(true); return true;
     })
 }
+window.getQRcodesrc = function(done) {
+    var reload_icon = document.getElementsByClassName('_1MOym')[0];
+    if(reload_icon)
+        reload_icon.click();
+    if(document.getElementsByClassName('_1pw2F')[0]){
+        var src = document.getElementsByTagName('img')[0].src;
+        return src;
+    } else {
+        return false;
+    }
+}
