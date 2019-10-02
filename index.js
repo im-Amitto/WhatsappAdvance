@@ -15,7 +15,7 @@ var isLoggedIn = false;
 
 const { Builder, By, until } = require("selenium-webdriver");
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const INDEX = path.join(__dirname, "/example/test.html");
 
 /*
