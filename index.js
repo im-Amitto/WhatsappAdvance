@@ -37,7 +37,7 @@ var caption;
 |=================================================================
 */
 const server = express()
-  .use(express.static(path.join(__dirname, "/example")))
+  .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
   .listen(port, () => console.log(`VampireWhatsApp listening on port ${port}`));
 
