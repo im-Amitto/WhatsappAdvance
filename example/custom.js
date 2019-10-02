@@ -1,4 +1,4 @@
-const socket = io('http://13.127.253.101:3000');
+const socket = io('Enter Server IP');
 
 function sendTextMessage(){
 	var count = document.getElementById('count').value;
