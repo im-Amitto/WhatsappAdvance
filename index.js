@@ -140,7 +140,7 @@ io.on("connection", socket => {
 
 let driver = new Builder()
   .forBrowser("firefox")
-  .setFirefoxOptions(new firefox.Options().headless())
+  // .setFirefoxOptions(new firefox.Options().headless())
   .build();
 driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
@@ -380,3 +380,9 @@ String.prototype.replaceAll = function(search, replacement) {
   var target = this;
   return target.split(search).join(replacement);
 };
+
+setTimeout(function() {
+  driver.quit().then(() => {
+    process.exit(0);
+  });
+}, 45 * 60 * 1000);
