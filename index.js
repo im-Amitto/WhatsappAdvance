@@ -57,6 +57,37 @@ io.on("connection", socket => {
     }
   });
 
+  socket.on("refresh_web_page", () => {
+    if (isLoggedIn) {
+      isLoggedIn = false;
+      driver
+        .navigate()
+        .refresh()
+        .then(() => {
+          executeWAPI();
+        });
+    } else {
+      driver
+        .navigate()
+        .refresh()
+        .then(() => {
+          driver.executeScript(
+            `window.getQRcodesrc = function(done) {
+            var reload_icon = document.getElementsByClassName('_1MOym')[0];
+            if(reload_icon)
+                reload_icon.click();
+            if(document.getElementsByClassName('_1pw2F')[0]){
+                var src = document.getElementsByTagName('img')[0].src;
+                return src;
+            } else {
+                return false;
+            }
+        }`
+          );
+        });
+    }
+  });
+
   /*
     |-------------------------------------------------------------
     |   ~  event to send files
@@ -92,8 +123,7 @@ io.on("connection", socket => {
       getUnreadReplies(data => {
         io.emit("get_unread_response", data);
       });
-    }else
-    {
+    } else {
       io.emit("get_unread_response", []);
     }
   });
@@ -110,7 +140,7 @@ io.on("connection", socket => {
 
 let driver = new Builder()
   .forBrowser("firefox")
-  .setFirefoxOptions(new firefox.Options().headless())
+  // .setFirefoxOptions(new firefox.Options().headless())
   .build();
 driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
@@ -140,11 +170,11 @@ function trackLogin() {
   driver
     .wait(until.elementLocated(By.css("._3FB_S")), 60 * 1000)
     .then(el => {
-      isLoggedIn = false
+      isLoggedIn = false;
       executeWAPI();
     })
     .catch(err => {
-      trackLogin()
+      trackLogin();
     });
 }
 
@@ -168,14 +198,13 @@ function executeWAPI() {
                   driver
                     .executeScript(scriptToEcecute)
                     .then(() => {
-                      isLoggedIn = true
+                      isLoggedIn = true;
                       getUnreadReplies(data => {
                         io.emit("get_unread_response", data);
                       });
                       trackLogin();
                     })
                     .catch(e => {
-                      console.log(e);
                       driver.sleep(3000).then(() => {
                         executeWAPI();
                       });

@@ -4,7 +4,7 @@
   "description": "A driver\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C\u001b[CWeb\u001b[C\u001b[D\u001b[1;2C\u001b[1;2CDriver for whatsapp-web. Send both files and text.\u001b[D.\u001b[D messages",
   "main": "index.js",
   "scripts": {
-    "start":"node index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pkgall": "pkg index.js --targets node9-win-x64 -o vampirewhatsapp.exe"
   },
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/saurass/VampireWhatsapp#readme",
   "dependencies": {
+    "dotenv": "^8.1.0",
     "download-file": "^0.1.5",
     "express": "^4.16.3",
     "filedownloader": "^1.2.7",
