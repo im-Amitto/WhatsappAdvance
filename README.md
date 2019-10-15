@@ -9,7 +9,8 @@
 
 ## Installing
 1.  Run `npm install` in the project directory folder.
-5.  Run 'npm start' to start the server.
+2.  Run `npm install pm2 -g`
+5.  Run `pm2 start index.js --watch` to start the server.
 
 ## Getting Started
 1.  The socket client must send data in following format which contains following parameters as json --
@@ -49,8 +50,42 @@
       msg_id: 'msg id you get form the response of the event "get_unread_response"'
     }
     ```
+    e) To get background running headless firefox session status
+    ```
+    EVENT: 'check_session'
+    {
+      payload: 'not required'
+    }
+    RESPONSE EVENT: 'session_status'
+    ```
+    
+    f) To restart background running headless firefox session
+    ```
+    EVENT: 'restart_session'
+    {
+      payload: 'not required'
+    }
+    ```
+    g) To get qr code
+    ```
+    EVENT: 'get_QR_code'
+    {
+      payload: 'not required'
+    }
+    RESPONSE EVENT: 'get_QR_code_response'
+    ```
+    
+    h) To get Login status
+    ```
+    EVENT: 'get_login_status'
+    {
+      payload: 'not required'
+    }
+    RESPONSE EVENT: 'is_logged_in_response'
+    ```
+
     Note: Check out [socket.io](https://socket.io/) to understand how to trigger these events
-2.  run 'node index.js' in cmd in root directory of the project.
+2.  run `pm2 start index.js --watch` in cmd in root directory of the project.
 
 ## How it's working
   - It's using selenium-webdriver to spawn a headless firefox with whatsapp web url
@@ -63,6 +98,13 @@
     - Send Seen status
 
 ## Extra
+
+### Things to note
+  - Never start multiple instance of the server(You will get an address already in use error)
+  - `pm2 list` command can be used to list all running process
+  - `pm2 stop <id>` command can be used to stop a particular process.you can see process id using above command.
+  - For more information about this package go to https://www.npmjs.com/package/pm2
+
 ### `assets/Whatsapp.js` contains all methods needed to do various operation in whatsapp
   Note : Every method is well documented in file itself
 ### How we are using methods from whatsapp.js
