@@ -22,13 +22,19 @@
   },
   "homepage": "https://github.com/saurass/VampireWhatsapp#readme",
   "dependencies": {
+    "chromedriver": "^77.0.0",
+    "chromium": "^2.1.1",
     "dotenv": "^8.1.0",
     "download-file": "^0.1.5",
     "express": "^4.16.3",
     "filedownloader": "^1.2.7",
     "geckodriver": "^1.18.0",
+    "phantom": "^6.3.0",
+    "phantomjs-prebuilt": "^2.1.16",
+    "puppeteer": "^1.20.0",
     "pusher-js": "^4.2.2",
-    "selenium-webdriver": "^4.0.0-alpha.1",
+    "selenium-webdriver": "^4.0.0-alpha.5",
+    "selenium-webdriver-3": "^3.5.0-2",
     "socket.io": "^2.1.1"
   }
 }

@@ -1,11 +1,10 @@
+const puppeteer = require("puppeteer");
 // const Downloader = require("filedownloader");
 const download = require("download-file");
 const fs = require("fs");
 const express = require("express");
 const socketIO = require("socket.io");
 const path = require("path");
-const geckodriver = require("geckodriver");
-const firefox = require("selenium-webdriver/firefox");
 
 const screen = {
   width: 640,
@@ -14,7 +13,6 @@ const screen = {
 var isLoggedIn = false;
 var sessionStatus = true;
 
-const { Builder, By, until } = require("selenium-webdriver");
 
 const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
@@ -59,18 +57,22 @@ io.on("connection", socket => {
   });
 
   socket.on("restart_session", () => {
-    driver.quit().then(() => {
-      process.exit(0);
-    });
+    browser.close()
+      .then(() => {
+        process.exit(0);
+      })
+      .catch(err => {
+        process.exit(0);
+      });
   });
 
   socket.on("check_session", () => {
-    driver
-      .executeScript(
+    page.evaluate(
         `window.sampleTest = function(done) {
       }`
       )
       .then(() => {
+        sessionStatus = true;
         io.emit("session_status", true);
       })
       .catch(err => {
@@ -84,15 +86,15 @@ io.on("connection", socket => {
     |   ~  event to send files
     |-------------------------------------------------------------
     */
-  socket.on("send_file_message", msg => {
-    if (isLoggedIn && sessionStatus) {
-      message = msg.file_link;
-      type = msg.type;
-      mobile_number = msg.mobile_number;
-      caption = msg.caption;
-      decisionMaker(type, message, mobile_number);
-    }
-  });
+  // socket.on("send_file_message", msg => {
+  //   if (isLoggedIn && sessionStatus) {
+  //     message = msg.file_link;
+  //     type = msg.type;
+  //     mobile_number = msg.mobile_number;
+  //     caption = msg.caption;
+  //     decisionMaker(type, message, mobile_number);
+  //   }
+  // });
 
   socket.on("get_QR_code", () => {
     if (sessionStatus) {
@@ -113,15 +115,15 @@ io.on("connection", socket => {
     |   ~  event to get all unread messages
     |-------------------------------------------------------------
     */
-  socket.on("get_unread_replies", () => {
-    if (isLoggedIn && sessionStatus) {
-      getUnreadReplies(data => {
-        io.emit("get_unread_response", data);
-      });
-    } else {
-      io.emit("get_unread_response", []);
-    }
-  });
+  // socket.on("get_unread_replies", () => {
+  //   if (isLoggedIn && sessionStatus) {
+  //     getUnreadReplies(data => {
+  //       io.emit("get_unread_response", data);
+  //     });
+  //   } else {
+  //     io.emit("get_unread_response", []);
+  //   }
+  // });
 
   /*
     |-------------------------------------------------------------
@@ -134,12 +136,32 @@ io.on("connection", socket => {
     }
   });
 });
+let browser;
+let page;
+(async () => {
+  browser = await puppeteer.launch();
+  page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"
+  );
+  await page.goto("https://web.whatsapp.com");
+  await page.waitFor(2000);
+  await page.evaluate(
+    `window.getQRcodesrc = function(done) {
+            var reload_icon = document.getElementsByClassName('_1MOym')[0];
+            if(reload_icon)
+                reload_icon.click();
+            if(document.getElementsByClassName('_1pw2F')[0]){
+                var src = document.getElementsByTagName('img')[0].src;
+                return src;
+            } else {
+                return false;
+            }
+        }`
+  );
+  executeWAPIPuppeter();
+})();
 
-let driver = new Builder()
-  .forBrowser("firefox")
-  .setFirefoxOptions(new firefox.Options().headless())
-  .build();
-driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
 /*
     |-------------------------------------------------------------
@@ -147,87 +169,67 @@ console.log("Welcome To Vampire WhatsApp");
     |-------------------------------------------------------------
     */
 
-executeWAPI();
 
-driver.executeScript(
-  `window.getQRcodesrc = function(done) {
-    var reload_icon = document.getElementsByClassName('_1MOym')[0];
-    if(reload_icon)
-        reload_icon.click();
-    if(document.getElementsByClassName('_1pw2F')[0]){
-        var src = document.getElementsByTagName('img')[0].src;
-        return src;
-    } else {
-        return false;
-    }
-}`
-);
-
-function trackLogin() {
-  driver
-    .wait(until.elementLocated(By.css("._3FB_S")), 60 * 1000)
-    .then(el => {
-      isLoggedIn = false;
-      executeWAPI();
-    })
-    .catch(err => {
-      trackLogin();
-    });
+function trackLoginPuppeter() {
+  const css_selector = "._3FB_S";
+  page.waitForSelector(css_selector).then(el => {
+    isLoggedIn = false;
+    console.log("logged out")
+    executeWAPIPuppeter();
+  }).catch(err => {
+    trackLoginPuppeter();
+  });;
 }
 
-function executeWAPI() {
-  driver
-    .wait(until.elementLocated(By.css("._3RWII")), 60 * 1000)
-    .then(el => {
-      fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
-        driver
-          .navigate()
-          .refresh()
-          .then(() => {
-            driver.sleep(3000).then(() => {
-              fs.readFile(
-                fileToRead,
-                {
-                  encoding: "utf-8"
-                },
-                (err, data) => {
-                  var scriptToEcecute = data;
-                  driver
-                    .executeScript(scriptToEcecute)
-                    .then(() => {
-                      isLoggedIn = true;
-                      getUnreadReplies(data => {
-                        io.emit("get_unread_response", data);
-                      });
-                      trackLogin();
-                    })
-                    .catch(e => {
-                      driver.sleep(3000).then(() => {
-                        executeWAPI();
-                      });
+function executeWAPIPuppeter() {
+  const css_selector = "._3RWII";
+  page.waitForSelector(css_selector).then(el => {
+    fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
+      page.reload()
+        .then(() => {
+          page.waitFor(3000).then(() => {
+            fs.readFile(
+              fileToRead,
+              {
+                encoding: "utf-8"
+              },
+              (err, data) => {
+                var scriptToEcecute = data;
+                page
+                  .evaluate(scriptToEcecute)
+                  .then(() => {
+                    isLoggedIn = true;
+                    console.log("logged in")
+                    getUnreadReplies(data => {
+                      io.emit("get_unread_response", data);
                     });
-                }
-              );
-            });
+                    trackLoginPuppeter();
+                  })
+                  .catch(e => {
+                    page.waitFor(3000).then(() => {
+                      executeWAPIPuppeter();
+                    });
+                  });
+              }
+            );
           });
-      });
-    })
-    .catch(err => {
-      executeWAPI();
+        });
     });
+  }).catch(err => {
+    executeWAPIPuppeter();
+  });
 }
+
 
 function getQRCode(done) {
   if (!isLoggedIn) {
-    var scriptToGetQRcode = "return window.getQRcodesrc()";
-    var r = driver
-      .executeScript(scriptToGetQRcode)
+    var scriptToGetQRcode = "window.getQRcodesrc()";
+    page
+      .evaluate(scriptToGetQRcode)
       .then(data => {
         done(data);
       })
-      .catch(err => {
-        console.log(err);
-      });
+      .catch(err => {});
   } else {
     done(false);
   }
@@ -255,7 +257,7 @@ function sendText(message, mobile_number) {
     "@c.us', '" +
     message.replaceAll("BREAK_LINE", "\\n") +
     "',function(data){console.log(data)})";
-  var r = driver.executeScript(scriptToSendText);
+  page.evaluate(scriptToSendText);
   console.log(scriptToSendText);
 }
 
@@ -315,7 +317,7 @@ function send_file(buf_base64, file_name) {
     "', '" +
     caption.replaceAll("BREAK_LINE", "\\n") +
     "', function(data){console.log(data)})";
-  driver.executeScript(scriptToSendText);
+  page.evaluate(scriptToSendText);
 }
 
 /*
@@ -324,9 +326,9 @@ function send_file(buf_base64, file_name) {
 |=================================================================
 */
 function getUnreadReplies(done) {
-  var scriptToSendText = "return window.WAPI.getUnreadMessages2()";
+  var scriptToSendText = "window.WAPI.getUnreadMessages2()";
   var unread_data = [];
-  driver.executeScript(scriptToSendText).then(data => {
+  page.evaluate(scriptToSendText).then(data => {
     data.forEach(single_chat_data => {
       var chat = single_chat_data.formattedName;
       var isGroup = single_chat_data.isGroup;
@@ -367,7 +369,7 @@ function sendSeenNotification(msg) {
     "window.WAPI.sendSeen('" +
     chat_to_see +
     "', function(data){console.log(data)})";
-  driver.executeScript(scriptToSendSeen);
+  page.evaluate(scriptToSendSeen);
 }
 
 /*
