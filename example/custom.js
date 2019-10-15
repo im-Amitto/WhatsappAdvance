@@ -1,4 +1,4 @@
-const socket = io('Enter Server IP');
+const socket = io('116.12.51.202:3000');
 let isLogged = false;
 
 function sendTextMessage() {

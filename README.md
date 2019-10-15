@@ -11,7 +11,7 @@
 ## Installing
 
 1.  Clone/Download/Extract the code
-2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `Enter Server IP` text.
+2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `116.12.51.202:3000` text.
 3.  Run `npm install` in the project directory folder.
 4.  Run `npm install pm2 -g`
 5.  Run `pm2 start index.js --watch` to start the server.

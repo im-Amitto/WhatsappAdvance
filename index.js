@@ -11,8 +11,8 @@ const screen = {
   height: 480
 };
 var isLoggedIn = false;
-var sessionStatus = true;
-
+var sessionStatus = false;
+var isLoading = true
 
 const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
@@ -61,7 +61,8 @@ io.on("connection", socket => {
   });
 
   socket.on("check_session", () => {
-    page.evaluate(
+    if(!isLoading){
+      page.evaluate(
         `window.sampleTest = function(done) {
       }`
       )
@@ -73,6 +74,7 @@ io.on("connection", socket => {
         sessionStatus = false;
         io.emit("session_status", err);
       });
+    }
   });
 
   /*
@@ -80,15 +82,15 @@ io.on("connection", socket => {
     |   ~  event to send files
     |-------------------------------------------------------------
     */
-  // socket.on("send_file_message", msg => {
-  //   if (isLoggedIn && sessionStatus) {
-  //     message = msg.file_link;
-  //     type = msg.type;
-  //     mobile_number = msg.mobile_number;
-  //     caption = msg.caption;
-  //     decisionMaker(type, message, mobile_number);
-  //   }
-  // });
+  socket.on("send_file_message", msg => {
+    if (isLoggedIn && sessionStatus) {
+      message = msg.file_link;
+      type = msg.type;
+      mobile_number = msg.mobile_number;
+      caption = msg.caption;
+      decisionMaker(type, message, mobile_number);
+    }
+  });
 
   socket.on("get_QR_code", () => {
     if (sessionStatus) {
@@ -109,15 +111,15 @@ io.on("connection", socket => {
     |   ~  event to get all unread messages
     |-------------------------------------------------------------
     */
-  // socket.on("get_unread_replies", () => {
-  //   if (isLoggedIn && sessionStatus) {
-  //     getUnreadReplies(data => {
-  //       io.emit("get_unread_response", data);
-  //     });
-  //   } else {
-  //     io.emit("get_unread_response", []);
-  //   }
-  // });
+  socket.on("get_unread_replies", () => {
+    if (isLoggedIn && sessionStatus) {
+      getUnreadReplies(data => {
+        io.emit("get_unread_response", data);
+      });
+    } else {
+      io.emit("get_unread_response", []);
+    }
+  });
 
   /*
     |-------------------------------------------------------------
@@ -133,7 +135,9 @@ io.on("connection", socket => {
 let browser;
 let page;
 (async () => {
-  browser = await puppeteer.launch();
+  browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+  isLoading = false;
+  sessionStatus = true;
   page = await browser.newPage();
   await page.setUserAgent(
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"
