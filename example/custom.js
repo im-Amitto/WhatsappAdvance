@@ -50,8 +50,14 @@ function getUnreadReplies() {
   });
 }
 
-function refreshSession() {
-  socket.emit("refresh_web_page", {
+function restartSession() {
+  socket.emit("restart_session", {
+    payload: "NOT REQUIRED"
+  });
+}
+
+function checkSession() {
+  socket.emit("check_session", {
     payload: "NOT REQUIRED"
   });
 }
@@ -102,7 +108,6 @@ socket.on("get_unread_response", data => {
 });
 
 socket.on("get_QR_code_response", data => {
-  console.log(data);
   if (data != false) displayQRcode(data);
   else document.getElementById("qr_img").innerHTML = "<h3>Logged In</h3>";
 });
@@ -111,12 +116,24 @@ socket.on("is_logged_in_response", data => {
   isLogged = data
 });
 
-setInterval(() => {
-  isLoggedIn()
-  getQRcode();
-  getUnreadReplies();
-}, 1000);
+socket.on("session_status", data => {
+  if(data['name'] == 'NoSuchWindowError'){
+    document.getElementById("Session").innerHTML = "Session: Window not exist"
+  }else if(data['name'] == 'NoSuchSessionError')
+  {
+    document.getElementById("Session").innerHTML = "Session: Does not exist"
+  }else if(data){
+    document.getElementById("Session").innerHTML = "Session: Online"
+  }
+  else{
+    data = data.toString()
+    document.getElementById("Session").innerHTML = "Session Error : "+data
+  }
+});
 
 setInterval(() => {
-  refreshSession();
-}, 45*60000);
+  isLoggedIn()
+  checkSession()
+  getQRcode();
+  getUnreadReplies();
+}, 500);

@@ -12,6 +12,7 @@ const screen = {
   height: 480
 };
 var isLoggedIn = false;
+var sessionStatus = true;
 
 const { Builder, By, until } = require("selenium-webdriver");
 
@@ -49,7 +50,7 @@ io.on("connection", socket => {
     |-------------------------------------------------------------
     */
   socket.on("send_text_message", msg => {
-    if (isLoggedIn) {
+    if (isLoggedIn && sessionStatus) {
       message = msg.message;
       type = "text";
       mobile_number = msg.mobile_number;
@@ -57,35 +58,25 @@ io.on("connection", socket => {
     }
   });
 
-  socket.on("refresh_web_page", () => {
-    if (isLoggedIn) {
-      isLoggedIn = false;
-      driver
-        .navigate()
-        .refresh()
-        .then(() => {
-          executeWAPI();
-        });
-    } else {
-      driver
-        .navigate()
-        .refresh()
-        .then(() => {
-          driver.executeScript(
-            `window.getQRcodesrc = function(done) {
-            var reload_icon = document.getElementsByClassName('_1MOym')[0];
-            if(reload_icon)
-                reload_icon.click();
-            if(document.getElementsByClassName('_1pw2F')[0]){
-                var src = document.getElementsByTagName('img')[0].src;
-                return src;
-            } else {
-                return false;
-            }
-        }`
-          );
-        });
-    }
+  socket.on("restart_session", () => {
+    driver.quit().then(() => {
+      process.exit(0);
+    });
+  });
+
+  socket.on("check_session", () => {
+    driver
+      .executeScript(
+        `window.sampleTest = function(done) {
+      }`
+      )
+      .then(() => {
+        io.emit("session_status", true);
+      })
+      .catch(err => {
+        sessionStatus = false;
+        io.emit("session_status", err);
+      });
   });
 
   /*
@@ -94,7 +85,7 @@ io.on("connection", socket => {
     |-------------------------------------------------------------
     */
   socket.on("send_file_message", msg => {
-    if (isLoggedIn) {
+    if (isLoggedIn && sessionStatus) {
       message = msg.file_link;
       type = msg.type;
       mobile_number = msg.mobile_number;
@@ -104,13 +95,17 @@ io.on("connection", socket => {
   });
 
   socket.on("get_QR_code", () => {
-    getQRCode(data => {
-      io.emit("get_QR_code_response", data);
-    });
+    if (sessionStatus) {
+      getQRCode(data => {
+        io.emit("get_QR_code_response", data);
+      });
+    }
   });
 
   socket.on("get_login_status", () => {
-    io.emit("is_logged_in_response", isLoggedIn);
+    if (sessionStatus) {
+      io.emit("is_logged_in_response", isLoggedIn);
+    }
   });
 
   /*
@@ -119,7 +114,7 @@ io.on("connection", socket => {
     |-------------------------------------------------------------
     */
   socket.on("get_unread_replies", () => {
-    if (isLoggedIn) {
+    if (isLoggedIn && sessionStatus) {
       getUnreadReplies(data => {
         io.emit("get_unread_response", data);
       });
@@ -134,13 +129,15 @@ io.on("connection", socket => {
     |-------------------------------------------------------------
     */
   socket.on("send_seen_reply", msg => {
-    sendSeenNotification(msg);
+    if (sessionStatus) {
+      sendSeenNotification(msg);
+    }
   });
 });
 
 let driver = new Builder()
   .forBrowser("firefox")
-  .setFirefoxOptions(new firefox.Options().headless())
+  // .setFirefoxOptions(new firefox.Options().headless())
   .build();
 driver.get("https://web.whatsapp.com");
 console.log("Welcome To Vampire WhatsApp");
@@ -228,7 +225,9 @@ function getQRCode(done) {
       .then(data => {
         done(data);
       })
-      .catch(err => {});
+      .catch(err => {
+        console.log(err);
+      });
   } else {
     done(false);
   }
@@ -380,9 +379,3 @@ String.prototype.replaceAll = function(search, replacement) {
   var target = this;
   return target.split(search).join(replacement);
 };
-
-setTimeout(function() {
-  driver.quit().then(() => {
-    process.exit(0);
-  });
-}, 45 * 60 * 1000);
