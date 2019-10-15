@@ -57,13 +57,7 @@ io.on("connection", socket => {
   });
 
   socket.on("restart_session", () => {
-    browser.close()
-      .then(() => {
-        process.exit(0);
-      })
-      .catch(err => {
-        process.exit(0);
-      });
+      process.exit(0);
   });
 
   socket.on("check_session", () => {
