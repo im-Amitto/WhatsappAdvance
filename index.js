@@ -12,7 +12,7 @@ const screen = {
 };
 var isLoggedIn = false;
 var sessionStatus = false;
-var isLoading = true
+var isLoading = true;
 
 const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
@@ -57,25 +57,18 @@ io.on("connection", socket => {
   });
 
   socket.on("restart_session", () => {
-      process.exit(0);
+    process.exit(0);
   });
 
-  // socket.on("check_session", () => {
-  //   if(!isLoading){
-  //     page.evaluate(
-  //       `window.sampleTest = function(done) {
-  //     }`
-  //     )
-  //     .then(() => {
-  //       sessionStatus = true;
-  //       io.emit("session_status", true);
-  //     })
-  //     .catch(err => {
-  //       sessionStatus = false;
-  //       io.emit("session_status", err);
-  //     });
-  //   }
-  // });
+  socket.on("check_session", () => {
+    if (!isLoading) {
+      if (page) {
+        io.emit("session_status", true);
+      } else {
+        io.emit("session_status", err);
+      }
+    }
+  });
 
   /*
     |-------------------------------------------------------------
@@ -135,7 +128,9 @@ io.on("connection", socket => {
 let browser;
 let page;
 (async () => {
-  browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+  browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
   isLoading = false;
   sessionStatus = true;
   page = await browser.newPage();
@@ -167,24 +162,27 @@ console.log("Welcome To Vampire WhatsApp");
     |-------------------------------------------------------------
     */
 
-
 function trackLoginPuppeter() {
   const css_selector = "._3FB_S";
-  page.waitForSelector(css_selector).then(el => {
-    isLoggedIn = false;
-    console.log("logged out")
-    executeWAPIPuppeter();
-  }).catch(err => {
-    trackLoginPuppeter();
-  });;
+  page
+    .waitForSelector(css_selector)
+    .then(el => {
+      isLoggedIn = false;
+      console.log("logged out");
+      executeWAPIPuppeter();
+    })
+    .catch(err => {
+      trackLoginPuppeter();
+    });
 }
 
 function executeWAPIPuppeter() {
   const css_selector = "._3RWII";
-  page.waitForSelector(css_selector).then(el => {
-    fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
-      page.reload()
-        .then(() => {
+  page
+    .waitForSelector(css_selector)
+    .then(el => {
+      fs.open("./assets/whatsapp.js", "r", function(err, fileToRead) {
+        page.reload().then(() => {
           page.waitFor(3000).then(() => {
             fs.readFile(
               fileToRead,
@@ -197,7 +195,7 @@ function executeWAPIPuppeter() {
                   .evaluate(scriptToEcecute)
                   .then(() => {
                     isLoggedIn = true;
-                    console.log("logged in")
+                    console.log("logged in");
                     getUnreadReplies(data => {
                       io.emit("get_unread_response", data);
                     });
@@ -212,12 +210,12 @@ function executeWAPIPuppeter() {
             );
           });
         });
+      });
+    })
+    .catch(err => {
+      executeWAPIPuppeter();
     });
-  }).catch(err => {
-    executeWAPIPuppeter();
-  });
 }
-
 
 function getQRCode(done) {
   if (!isLoggedIn) {
