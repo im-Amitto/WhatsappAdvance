@@ -60,22 +60,22 @@ io.on("connection", socket => {
       process.exit(0);
   });
 
-  socket.on("check_session", () => {
-    if(!isLoading){
-      page.evaluate(
-        `window.sampleTest = function(done) {
-      }`
-      )
-      .then(() => {
-        sessionStatus = true;
-        io.emit("session_status", true);
-      })
-      .catch(err => {
-        sessionStatus = false;
-        io.emit("session_status", err);
-      });
-    }
-  });
+  // socket.on("check_session", () => {
+  //   if(!isLoading){
+  //     page.evaluate(
+  //       `window.sampleTest = function(done) {
+  //     }`
+  //     )
+  //     .then(() => {
+  //       sessionStatus = true;
+  //       io.emit("session_status", true);
+  //     })
+  //     .catch(err => {
+  //       sessionStatus = false;
+  //       io.emit("session_status", err);
+  //     });
+  //   }
+  // });
 
   /*
     |-------------------------------------------------------------
