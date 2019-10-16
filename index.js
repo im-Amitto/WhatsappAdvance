@@ -44,6 +44,11 @@ const server = express()
       res.sendFile(screenshot);
     })
   )
+  .get("/refresh", (req, res) =>
+    refresh().then(() => {
+      res.send("Page is refreshed");
+    })
+  )
   .listen(port, () => console.log(`VampireWhatsApp listening on port ${port}`));
 
 const io = socketIO(server);
@@ -410,8 +415,10 @@ async function refresh() {
   executeWAPIPuppeter();
   isLoading = false;
   sessionStatus = true;
-  await page.screenshot({ path: "../screenshot.png" });
 }
+setInterval(() => {
+  page.screenshot({ path: "../screenshot.png" });
+}, 4000);
 
 setInterval(() => {
   refresh();
