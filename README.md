@@ -4,19 +4,17 @@
 
 ## Prerequisite
 
-- Node 10+
-- NPM 6+
-- Firefox
+- doker
 
 ## Installing
 
-1.  Clone/Download/Extract the code
-2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `116.12.51.202:3000` text.
-3.  Run `npm install` in the project directory folder.
-4.  Run `npm install pm2 -g`
-5.  Run `pm2 start index.js --watch` to start the server.
+1.  Go to app root directory
+2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `localhost:3000` text.
+3.  Run `docker build --rm -f "Dockerfile" -t vampirewhatsapp-v2 .`
+4.  Run `docker run -p 3000:3000  -d vampirewhatsapp-v2:latest`
+5.  Server will be live at port `3000`
 
-## Getting Started
+## Socket listners
 
 1.  The socket client must send data in following format which contains following parameters as json --
     a) To send text messages (country code to be added in start)
@@ -101,21 +99,10 @@
 
     Note: Check out [socket.io](https://socket.io/) to understand how to trigger these events
 
-2.  run `pm2 start index.js --watch` in cmd in root directory of the project.
-
-## How it's working
-
-- It's using selenium-webdriver to spawn a headless firefox with whatsapp web url
-- We have a flag on server side with has deafult value set to false and changed to true when user successfully logged in. It is used to decide which event should be ignored when a user is not logged in
-- We are using the assertion on classname presence to decide the current page location
-- From front end `get unread message` and `get qr request` is fired every one second. if a user is not logged in that means their exist a qr on the webpage so backend send that qr to front end or else it just send all unread messages
-- We have four functionalities which can be fired manually
-  - Send Message
-  - Send File
-  - Send Seen status
-
 ## Extra
-
+Assunming you are running server at `localhost:3000`
+- `localhost:3000/screenshot` gives you the snapshot of the browser
+- `localhost:3000/refresh` reloads the browser page
 ### Things to note
 
 - Never start multiple instance of the server(You will get an address already in use error)
@@ -127,15 +114,11 @@
 
 Note : Every method is well documented in file itself
 
-### How we are using methods from whatsapp.js
-
-- We can simply call the function using executequery method of selenium-webdriver
-
 ### How whatsapp.js id getting injected
 
 - It wait's for the qr page to disappear
-- The script is injected in the headless browser using selenium-webdriver once user is logged in
-- If the injection turned out to be insuccessfull then it reploads the page and reattempt so we can we sure that the operation won't fail
+- The script is injected in the puppeteer once user is logged in
+- If the injection turned out to be insuccessfull then it reloads the page and re-attempt so we can we sure that the operation won't fail
 
 ## Author
 
