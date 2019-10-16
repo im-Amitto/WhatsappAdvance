@@ -397,6 +397,7 @@ String.prototype.replaceAll = function(search, replacement) {
 async function refresh() {
   isLoading = true;
   sessionStatus = false;
+  isLoggedIn = false;
   await page.reload();
   await page.waitFor(2000);
   await page.evaluate(
