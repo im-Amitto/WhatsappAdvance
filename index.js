@@ -16,6 +16,7 @@ var isLoading = true;
 
 const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
+const screenshot = path.join(__dirname, "../screenshot.png");
 
 /*
 |=================================================================
@@ -38,6 +39,11 @@ var caption;
 const server = express()
   .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
+  .get("/screenshot", (req, res) =>
+    page.screenshot({ path: "../screenshot.png" }).then(() => {
+      res.sendFile(screenshot);
+    })
+  )
   .listen(port, () => console.log(`VampireWhatsApp listening on port ${port}`));
 
 const io = socketIO(server);
@@ -65,7 +71,7 @@ io.on("connection", socket => {
       if (page) {
         io.emit("session_status", true);
       } else {
-        io.emit("session_status", err);
+        io.emit("session_status", false);
       }
     }
   });
@@ -136,8 +142,6 @@ let page;
       "--disable-gpu"
     ]
   });
-  isLoading = false;
-  sessionStatus = true;
   page = await browser.newPage();
   await page.setUserAgent(
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"
@@ -158,6 +162,8 @@ let page;
         }`
   );
   executeWAPIPuppeter();
+  isLoading = false;
+  sessionStatus = true;
 })();
 
 console.log("Welcome To Vampire WhatsApp");
@@ -382,3 +388,31 @@ String.prototype.replaceAll = function(search, replacement) {
   var target = this;
   return target.split(search).join(replacement);
 };
+
+async function refresh() {
+  isLoading = true;
+  sessionStatus = false;
+  await page.reload();
+  await page.waitFor(2000);
+  await page.evaluate(
+    `window.getQRcodesrc = function(done) {
+            var reload_icon = document.getElementsByClassName('_1MOym')[0];
+            if(reload_icon)
+                reload_icon.click();
+            if(document.getElementsByClassName('_1pw2F')[0]){
+                var src = document.getElementsByTagName('img')[0].src;
+                return src;
+            } else {
+                return false;
+            }
+        }`
+  );
+  executeWAPIPuppeter();
+  isLoading = false;
+  sessionStatus = true;
+  await page.screenshot({ path: "../screenshot.png" });
+}
+
+setInterval(() => {
+  refresh();
+}, 30 * 60 * 1000);
