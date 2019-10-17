@@ -1,4 +1,4 @@
-const socket = io('localhost:3000');
+const socket = io('116.12.51.202:3000');
 let isLogged = false;
 
 function sendTextMessage() {
@@ -12,6 +12,12 @@ function sendTextMessage() {
   }
 }
 
+function getSnap(){
+  socket.emit("get_snap", {
+    payload: "NOT REQUIRED"
+  })
+}
+
 function getQRcode() {
   socket.emit("get_QR_code", {
     payload: "NOT REQUIRED"
@@ -22,6 +28,15 @@ function isLoggedIn() {
   socket.emit("get_login_status", {
     payload: "NOT REQUIRED"
   });
+}
+
+function displaySnap(data) {
+  var img_ele = document.createElement("IMG");
+  img_ele.src = data;
+  img_ele.style = "height: 400px;width: 400px;"
+  var snap_img = document.getElementById("snap_img");
+  if (!snap_img.hasChildNodes()) snap_img.appendChild(img_ele);
+  else snap_img.replaceChild(img_ele, snap_img.childNodes[0]);
 }
 
 function displayQRcode(data) {
@@ -46,6 +61,12 @@ function sendFileMessage() {
 
 function getUnreadReplies() {
   socket.emit("get_unread_replies", {
+    payload: "NOT REQUIRED"
+  });
+}
+
+function refreshBrowser(){
+  socket.emit("refresh_browser", {
     payload: "NOT REQUIRED"
   });
 }
@@ -112,6 +133,11 @@ socket.on("get_QR_code_response", data => {
   else document.getElementById("qr_img").innerHTML = "<h3>Logged In</h3>";
 });
 
+socket.on("get_snap_response", data => {
+  if (data != false) displaySnap(data);
+  else document.getElementById("snap_img").innerHTML = "<h3>NO SNAP</h3>";
+});
+
 socket.on("is_logged_in_response", data => {
   isLogged = data
 });
@@ -137,3 +163,7 @@ setInterval(() => {
   getQRcode();
   getUnreadReplies();
 }, 1000);
+
+setInterval(() => {
+  getSnap()
+}, 60 * 1000);

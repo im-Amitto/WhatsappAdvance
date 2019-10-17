@@ -39,7 +39,11 @@ var caption;
 const server = express()
   .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
-  .get("/ss", (req, res) => res.sendFile(screenshot))
+  .get("/ss", (req, res) => {
+    takeSnap(() => {
+      res.sendFile(screenshot);
+    });
+  })
   .get("/refresh", (req, res) =>
     refresh().then(() => {
       res.send("Page is refreshed");
@@ -99,6 +103,17 @@ io.on("connection", socket => {
       });
     }
   });
+
+  socket.on("get_snap", () => {
+    takeSnap(data => {
+      let base64str = fileTobase64_encode(screenshot);
+      io.emit("get_snap_response", "data:image/png;base64," + base64str);
+    });
+  });
+
+  socket.on("refresh_browser", ()=>{
+    refresh()
+  })
 
   socket.on("get_login_status", () => {
     if (sessionStatus) {
@@ -186,6 +201,11 @@ function trackLoginPuppeter() {
     .catch(err => {
       trackLoginPuppeter();
     });
+}
+
+function fileTobase64_encode(file) {
+  var bitmap = fs.readFileSync(file);
+  return new Buffer.from(bitmap).toString("base64");
 }
 
 function executeWAPIPuppeter() {
@@ -414,13 +434,10 @@ async function refresh() {
   sessionStatus = true;
 }
 
-async function takeSnap() {
+async function takeSnap(done) {
   await page.screenshot({ path: "images/screenshot.png" });
+  done(true);
 }
-
-setInterval(() => {
-  takeSnap();
-}, 10 * 1000);
 
 setInterval(() => {
   refresh();

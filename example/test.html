@@ -1,4 +1,4 @@
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="http://116.12.51.202:3000/socket.io/socket.io.js"></script>
 
 
 <script src="custom.js"></script>
@@ -8,12 +8,19 @@
 	<h4>Developer -- Amit</h4>
 	<h4 id="Session"></h4>
 	<button onclick="restartSession();">Restart Session</button>
+	<button onclick="refreshBrowser();">Refresh Browser</button>
 	<br/>
 	<br/>
 </center>
 
 <center>
 	<div id="qr_img"></div>
+</center>
+
+<center>
+	<h4>Below is the browser image(updated every 1 minute)(click the below button to force update)</h4>
+	<div style="height: 400px;width: 400px;" id="snap_img"></div>
+	<button onclick="getSnap();">Update Now</button>
 </center>
 
 <div>
