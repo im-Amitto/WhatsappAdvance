@@ -1,4 +1,4 @@
-const socket = io('localhost:3000');
+const socket = io('116.12.51.202:3000');
 let isLogged = false;
 
 function sendTextMessage() {
@@ -136,4 +136,4 @@ setInterval(() => {
   checkSession()
   getQRcode();
   getUnreadReplies();
-}, 500);
+}, 1000);

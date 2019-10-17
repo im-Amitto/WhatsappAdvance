@@ -16,7 +16,7 @@ var isLoading = true;
 
 const port = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, "/example/test.html");
-const screenshot = path.join(__dirname, "../screenshot.png");
+const screenshot = path.join(__dirname, "/images/screenshot.png");
 
 /*
 |=================================================================
@@ -40,9 +40,14 @@ const server = express()
   .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
   .get("/screenshot", (req, res) =>
-    page.screenshot({ path: "../screenshot.png" }).then(() => {
-      res.sendFile(screenshot);
-    })
+    page
+      .screenshot({ path: "images/screenshot.png" })
+      .then(() => {
+        res.sendFile(screenshot);
+      })
+      .catch(err => {
+        console.log(err);
+      })
   )
   .get("/refresh", (req, res) =>
     refresh().then(() => {
@@ -417,9 +422,6 @@ async function refresh() {
   isLoading = false;
   sessionStatus = true;
 }
-setInterval(() => {
-  page.screenshot({ path: "../screenshot.png" });
-}, 4000);
 
 setInterval(() => {
   refresh();

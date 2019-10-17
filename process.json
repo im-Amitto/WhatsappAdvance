@@ -1,0 +1,9 @@
+{
+  "script": "index.js",
+  "watch": true,
+  "ignore_watch": ["node_modules", "images", ".git"],
+  "watch_options": {
+    "followSymlinks": false
+  },
+  "name": "PM2 whatsapp"
+}

@@ -9,7 +9,7 @@
 ## Installing
 
 1.  Go to app root directory
-2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `localhost:3000` text.
+2.  Enter your server ip in `example/custom.js` and `example.test.html` in place of `116.12.51.202:3000` text.
 3.  Run `docker build --rm -f "Dockerfile" -t vampirewhatsapp-v2 .`
 4.  Run `docker run -p 3000:3000  -d vampirewhatsapp-v2:latest`
 5.  Server will be live at port `3000`
@@ -100,9 +100,9 @@
     Note: Check out [socket.io](https://socket.io/) to understand how to trigger these events
 
 ## Extra
-Assunming you are running server at `localhost:3000`
-- `localhost:3000/screenshot` gives you the snapshot of the browser
-- `localhost:3000/refresh` reloads the browser page
+Assunming you are running server at `116.12.51.202:3000`
+- `116.12.51.202:3000/screenshot` gives you the snapshot of the browser
+- `116.12.51.202:3000/refresh` reloads the browser page
 ### Things to note
 
 - Never start multiple instance of the server(You will get an address already in use error)
