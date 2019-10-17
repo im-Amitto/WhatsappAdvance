@@ -39,7 +39,7 @@ var caption;
 const server = express()
   .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
-  .get("/screenshot", (req, res) =>
+  .get("/ss", (req, res) =>
     page
       .screenshot({ path: "images/screenshot.png" })
       .then(() => {
