@@ -39,16 +39,7 @@ var caption;
 const server = express()
   .use(express.static(path.join(__dirname, "example")))
   .get("/", (req, res) => res.sendFile(INDEX))
-  .get("/ss", (req, res) =>
-    page
-      .screenshot({ path: "images/screenshot.png" })
-      .then(() => {
-        res.sendFile(screenshot);
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  )
+  .get("/ss", (req, res) => res.sendFile(screenshot))
   .get("/refresh", (req, res) =>
     refresh().then(() => {
       res.send("Page is refreshed");
@@ -422,6 +413,14 @@ async function refresh() {
   isLoading = false;
   sessionStatus = true;
 }
+
+async function takeSnap() {
+  await page.screenshot({ path: "images/screenshot.png" });
+}
+
+setInterval(() => {
+  takeSnap();
+}, 10 * 1000);
 
 setInterval(() => {
   refresh();
